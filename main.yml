@@ -1,0 +1,50 @@
+---
+- name: re-register KT satellite environment
+  hosts: all
+  gather_facts: true
+  become: yes
+  vars_files:
+    - vars.yml
+  tasks: 
+    - name: unregister hosts
+      redhat_subscription:
+        state: absent
+      ignore_errors: yes
+
+    - name: clean subs
+      shell: subscription-manager clean
+    
+    - name: remove old katello
+      yum:
+        name: katello-ca-consumer-latest
+        state: absent
+      ignore_errors: yes
+    
+    - name: download new katello
+      get_url: 
+        url: "{{ CAURL }}"
+        dest: /tmp/katello-ca-consumer-latest.noarch.rpm
+        validate_certs: no
+        mode: '0755'
+
+    - name: install katello ca
+      yum: 
+        name: /tmp/katello-ca-consumer-latest.noarch.rpm
+        state: latest
+        disablerepo: "*"
+
+    - name: register RHEL7 hosts
+      redhat_subscription:
+        state: present
+        auto_attach: true
+        activationkey: "{{ rhel7key }}"
+        org_id: "{{ orgID }}"
+      when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "7"
+
+    - name: register RHEL8 hosts
+      redhat_subscription:
+        state: present
+        auto_attach: true
+        activationkey: "{{ rhel8key }}"
+        org_id: "{{ orgID }}"
+      when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8"

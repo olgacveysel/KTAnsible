@@ -39,6 +39,7 @@
         auto_attach: true
         activationkey: "{{ rhel7key }}"
         org_id: "{{ orgID }}"
+        force_register: yes
       when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "7"
 
     - name: register RHEL8 hosts
@@ -47,4 +48,5 @@
         auto_attach: true
         activationkey: "{{ rhel8key }}"
         org_id: "{{ orgID }}"
+        force_register: yes
       when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8"

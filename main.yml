@@ -50,3 +50,9 @@
         org_id: "{{ orgID }}"
         force_register: yes
       when: ansible_facts['distribution'] == "RedHat" and ansible_facts['distribution_major_version'] == "8"
+
+    - name: replace ssl verify 
+      replace: 
+        path: /etc/yum.repos.d/redhat.repo
+        regexp: '^(sslverify = 0)'
+        replace: 'sslverify = 1'
